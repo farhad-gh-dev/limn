@@ -6,3 +6,6 @@ fonts/_fontlist.txt
 .DS_Store
 Thumbs.db
 .env
+
+# Local planning docs — not for the public repo
+PRD.md
