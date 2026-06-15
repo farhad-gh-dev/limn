@@ -1,0 +1,70 @@
+{
+  "name": "limn-mcp",
+  "version": "0.1.0",
+  "description": "A local, account-free MCP server that turns data into clean, presentation-ready charts — design judgment baked into the defaults.",
+  "type": "module",
+  "bin": {
+    "limn": "dist/index.js",
+    "limn-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "fonts/*.ttf",
+    "fonts/*.otf",
+    "fonts/OFL.txt",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsx src/index.ts",
+    "render": "tsx scripts/render-examples.ts",
+    "test": "node --import tsx --test test/*.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "chart",
+    "charts",
+    "dataviz",
+    "data-visualization",
+    "visualization",
+    "vega-lite",
+    "svg",
+    "png",
+    "local",
+    "offline",
+    "privacy",
+    "claude"
+  ],
+  "license": "MIT",
+  "author": "Farhad <farhad.dev.contact@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/farhad-gh-dev/limn.git"
+  },
+  "homepage": "https://github.com/farhad-gh-dev/limn#readme",
+  "bugs": {
+    "url": "https://github.com/farhad-gh-dev/limn/issues"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "fontkit": "^2.0.4",
+    "vega": "^6.2.0",
+    "vega-lite": "^6.4.3",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/fontkit": "^2.0.9",
+    "@types/node": "^25.9.3",
+    "@types/vega": "^0.0.30",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
