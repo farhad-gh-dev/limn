@@ -4,8 +4,12 @@ import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { barChart } from "../src/tools/barChart.js";
 import { lineChart } from "../src/tools/lineChart.js";
+import { scatterPlot } from "../src/tools/scatterPlot.js";
+import { distribution } from "../src/tools/distribution.js";
+import { partToWhole } from "../src/tools/partToWhole.js";
 import { waterfall } from "../src/tools/waterfall.js";
 import { slopeChart } from "../src/tools/slopeChart.js";
+import { dumbbellPlot } from "../src/tools/dumbbellPlot.js";
 import { renderVegaSpec } from "../src/tools/renderVegaSpec.js";
 import type { ToolDef } from "../src/tools/types.js";
 
@@ -130,6 +134,80 @@ await emit("escape_donut", renderVegaSpec, {
   },
   title: "Sessions by channel",
   subtitle: "Escape hatch: themed Vega-Lite donut",
+});
+
+// --- scatter ---
+const segments = ["Enterprise", "SMB", "Startup"];
+const scatterData: Array<Record<string, string | number>> = [];
+for (let i = 0; i < 18; i++) {
+  const spend = 20 + i * 7 + (i % 3) * 15;
+  const revenue = Math.round(spend * 3.2 + 40 * Math.sin(i) + 30);
+  scatterData.push({ spend: spend * 1000, revenue: revenue * 1000, segment: segments[i % 3]!, headcount: 5 + (i % 6) * 8 });
+}
+await emit("scatter_spend", scatterPlot, {
+  data: scatterData,
+  x: "spend",
+  y: "revenue",
+  size: "headcount",
+  color: "segment",
+  trendLine: true,
+  title: "Revenue vs. marketing spend",
+  subtitle: "Bubble size = headcount",
+  source: "Source: synthetic",
+});
+
+// --- distribution (histogram) ---
+const distData: Array<Record<string, number>> = [];
+for (let i = 0; i < 160; i++) {
+  distData.push({ response_ms: Math.round(180 + 90 * Math.abs(Math.sin(i * 1.3)) + (i % 7) * 6 + (i % 13) * 4) });
+}
+await emit("distribution_latency", distribution, {
+  data: distData,
+  value: "response_ms",
+  kind: "histogram",
+  maxBins: 24,
+  title: "Response time distribution",
+  subtitle: "Requests by latency bucket (ms)",
+});
+
+// --- part_to_whole (donut, 7 categories → "Other") ---
+await emit("part_to_whole_channels", partToWhole, {
+  data: [
+    { channel: "Direct", sessions: 4200 },
+    { channel: "Organic search", sessions: 3800 },
+    { channel: "Paid search", sessions: 2100 },
+    { channel: "Social", sessions: 1500 },
+    { channel: "Email", sessions: 900 },
+    { channel: "Referral", sessions: 600 },
+    { channel: "Affiliate", sessions: 300 },
+  ],
+  category: "channel",
+  value: "sessions",
+  title: "Sessions by channel",
+  subtitle: "Top channels; remainder grouped into Other",
+});
+
+// --- dumbbell ---
+await emit("dumbbell_score", dumbbellPlot, {
+  data: [
+    { country: "Germany", year: "2019", score: 62 },
+    { country: "Germany", year: "2024", score: 71 },
+    { country: "Japan", year: "2019", score: 55 },
+    { country: "Japan", year: "2024", score: 58 },
+    { country: "Brazil", year: "2019", score: 40 },
+    { country: "Brazil", year: "2024", score: 61 },
+    { country: "India", year: "2019", score: 33 },
+    { country: "India", year: "2024", score: 52 },
+    { country: "Kenya", year: "2019", score: 28 },
+    { country: "Kenya", year: "2024", score: 35 },
+    { country: "Canada", year: "2019", score: 70 },
+    { country: "Canada", year: "2024", score: 68 },
+  ],
+  category: "country",
+  group: "year",
+  value: "score",
+  title: "Index score, 2019 → 2024",
+  subtitle: "Sorted by size of change",
 });
 
 console.log("done");

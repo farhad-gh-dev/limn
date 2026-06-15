@@ -8,7 +8,7 @@ Limn is a [Model Context Protocol](https://modelcontextprotocol.io) server. Ask 
 - 🔒 **Fully local, no account.** Runs on your machine over stdio. **No network calls, no API key, no data leaving the box** — verifiable offline. The Vega data loader is disabled so a spec can't fetch a URL or read a file.
 - ⚡ **No browser.** Renders Vega-Lite → SVG → PNG with a Rust rasterizer (`@resvg/resvg-js`). No Puppeteer/Chromium. Fast cold start, deterministic output.
 
-> Status: **v0.1** — the hero set is `bar_chart`, `line_chart`, `waterfall`, `slope_chart`, plus a themed Vega-Lite escape hatch. See [Roadmap](#roadmap).
+> Status: **v0.2** — eight chart tools (`bar_chart`, `line_chart`, `scatter_plot`, `distribution`, `part_to_whole`, `slope_chart`, `dumbbell_plot`, `waterfall`) plus a themed Vega-Lite escape hatch. See [Roadmap](#roadmap).
 
 ## Before / after
 
@@ -29,6 +29,10 @@ Every chart below was produced from data + 2–3 encodings — no styling input.
 |---|---|
 | **Bar** — sorted, zero-baseline, highlight one bar, direct value labels | **Line** — multi-series with end-of-line labels instead of a legend |
 | ![Bar chart](examples/bar_revenue.png) | ![Line chart](examples/line_latency.png) |
+| **Scatter** — size + color encodings, trend line, overplotting opacity | **Distribution** — histogram (also box / density) |
+| ![Scatter plot](examples/scatter_spend.png) | ![Distribution](examples/distribution_latency.png) |
+| **Part-to-whole** — donut with % legend and "Other" grouping | **Dumbbell** — two points per category, sorted by gap |
+| ![Part to whole](examples/part_to_whole_channels.png) | ![Dumbbell plot](examples/dumbbell_score.png) |
 | **Waterfall** — signed steps, semantic colors, appended total | **Slope** — before/after, direction-of-change as the message |
 | ![Waterfall chart](examples/waterfall_mrr.png) | ![Slope chart](examples/slope_share.png) |
 | **Grouped bar** — categorical Okabe-Ito palette, top legend | **Escape hatch** — any themed Vega-Lite spec (here, a donut) |
@@ -91,8 +95,12 @@ Each tool takes `data` (an array of rows) plus a few field names, and accepts op
 |---|---|---|
 | `bar_chart` | Compare a value across categories | `x`, `y`, `series?`, `layout?`, `sort?`, `highlight?`, `valueLabels?` |
 | `line_chart` | A value over an ordered axis (usually time) | `x`, `y`, `series?`, `area?`, `highlight?` |
-| `waterfall` | Bridge a start to an end through signed steps | `label`, `value`, `showTotal?`, `totalLabel?` |
+| `scatter_plot` | Relationship between two numeric variables | `x`, `y`, `size?`, `color?`, `trendLine?` |
+| `distribution` | Shape of one numeric variable | `value`, `kind?` (histogram/box/density), `series?` |
+| `part_to_whole` | How categories make up a total | `category`, `value`, `kind?` (donut/bar), `maxSlices?` |
 | `slope_chart` | Before/after across many series | `x` (two points), `y`, `series`, `highlight?` |
+| `dumbbell_plot` | Two values per category; the gap is the message | `category`, `group` (two), `value`, `sort?`, `valueLabels?` |
+| `waterfall` | Bridge a start to an end through signed steps | `label`, `value`, `showTotal?`, `totalLabel?` |
 | `render_vega_spec` | Any chart outside the hero set, themed | `spec` (inline-data Vega-Lite JSON only) |
 
 **Refinement loop.** Each call returns a *resolved spec* — pass it back to the same tool with one change (`"now highlight Q4"`, `"add a subtitle"`) instead of regenerating from scratch.
@@ -111,7 +119,7 @@ The quality is in defaults the model never touches:
 - **Restraint** — thin gridlines, no chart borders, generous margins, bundled Inter with a fixed type scale.
 - **Opinionated correctness** — bars start at zero and sort by value; numbers get SI/compact formatting.
 
-## Limitations (v0.1)
+## Limitations (v0.2)
 
 - **One theme** (`light`). Dark/print are on the roadmap.
 - **No `accentColor` yet** — the accent is Okabe-Ito blue. (Accessible-clamped custom accents are planned.)
@@ -120,8 +128,9 @@ The quality is in defaults the model never touches:
 
 ## Roadmap
 
-- **v0.2** — `dark`/`print` themes, accessible `accentColor`, more hero charts (`scatter`, `distribution`, `part_to_whole`, `dumbbell`), bespoke renderers with smarter label placement, before/after gallery.
-- Later — a `suggest_chart` advisor; optional self-hosted HTTP transport.
+- **v0.2 (this release)** — added `scatter_plot`, `distribution`, `part_to_whole`, and the `dumbbell_plot` signature chart.
+- **Next** — `dark`/`print` themes, accessible `accentColor`, and bespoke renderers with smarter label placement (de-conflict slope/line labels on near-equal values).
+- **Later** — a `suggest_chart` advisor; optional self-hosted HTTP transport.
 
 ## Tech
 

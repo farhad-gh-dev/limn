@@ -84,3 +84,24 @@ export function toStringArray(v: unknown): string[] {
   if (v == null) return [];
   return (Array.isArray(v) ? v : [v]).map((x) => String(x));
 }
+
+function isDateLike(s: string): boolean {
+  if (/^\d{4}(-\d{1,2}){0,2}([ T]\d)?/.test(s)) return true;
+  return /[/]/.test(s) && !Number.isNaN(Date.parse(s));
+}
+
+/** Infer a Vega-Lite field type from a sample of the data. */
+export function inferType(data: DataRow[], field: string): "quantitative" | "temporal" | "nominal" {
+  const vals: Array<string | number | boolean> = [];
+  for (const r of data) {
+    const v = r[field];
+    if (v != null) {
+      vals.push(v);
+      if (vals.length >= 25) break;
+    }
+  }
+  if (vals.length === 0) return "nominal";
+  if (vals.every((v) => typeof v === "number")) return "quantitative";
+  if (vals.every((v) => typeof v === "string" && isDateLike(v))) return "temporal";
+  return "nominal";
+}

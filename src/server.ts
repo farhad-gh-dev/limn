@@ -2,11 +2,25 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { ToolDef } from "./tools/types.js";
 import { barChart } from "./tools/barChart.js";
 import { lineChart } from "./tools/lineChart.js";
-import { waterfall } from "./tools/waterfall.js";
+import { scatterPlot } from "./tools/scatterPlot.js";
+import { distribution } from "./tools/distribution.js";
+import { partToWhole } from "./tools/partToWhole.js";
 import { slopeChart } from "./tools/slopeChart.js";
+import { dumbbellPlot } from "./tools/dumbbellPlot.js";
+import { waterfall } from "./tools/waterfall.js";
 import { renderVegaSpec } from "./tools/renderVegaSpec.js";
 
-export const TOOLS: ToolDef[] = [barChart, lineChart, waterfall, slopeChart, renderVegaSpec];
+export const TOOLS: ToolDef[] = [
+  barChart,
+  lineChart,
+  scatterPlot,
+  distribution,
+  partToWhole,
+  slopeChart,
+  dumbbellPlot,
+  waterfall,
+  renderVegaSpec,
+];
 
 // Every tool is a pure, offline, deterministic renderer.
 const ANNOTATIONS = {

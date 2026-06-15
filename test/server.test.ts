@@ -12,7 +12,17 @@ test("server lists the 5 tools and renders a bar chart via MCP", async () => {
 
   const listed = await client.listTools();
   const names = listed.tools.map((t) => t.name).sort();
-  assert.deepEqual(names, ["bar_chart", "line_chart", "render_vega_spec", "slope_chart", "waterfall"]);
+  assert.deepEqual(names, [
+    "bar_chart",
+    "distribution",
+    "dumbbell_plot",
+    "line_chart",
+    "part_to_whole",
+    "render_vega_spec",
+    "scatter_plot",
+    "slope_chart",
+    "waterfall",
+  ]);
 
   // Annotations should mark tools read-only / offline.
   const bar = listed.tools.find((t) => t.name === "bar_chart");
