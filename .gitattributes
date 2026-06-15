@@ -1,0 +1,7 @@
+# Normalize line endings to LF in the repo (keeps diffs and output stable across OSes).
+* text=auto eol=lf
+
+# Binary assets — never touch.
+*.ttf binary
+*.otf binary
+*.png binary
