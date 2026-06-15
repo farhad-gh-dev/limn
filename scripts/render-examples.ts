@@ -210,4 +210,33 @@ await emit("dumbbell_score", dumbbellPlot, {
   subtitle: "Sorted by size of change",
 });
 
+// --- theme: dark ---
+await emit("theme_dark_line", lineChart, {
+  data: lineData,
+  x: "date",
+  y: "latency_ms",
+  series: "service",
+  title: "Service latency over 2024",
+  subtitle: "Dark theme",
+  source: "Source: synthetic",
+  style: { theme: "dark" },
+});
+
+// --- accentColor (clamped) ---
+await emit("theme_accent_bar", barChart, {
+  data: [
+    { region: "North America", revenue: 4_200_000 },
+    { region: "EMEA", revenue: 3_100_000 },
+    { region: "APAC", revenue: 2_750_000 },
+    { region: "LATAM", revenue: 980_000 },
+  ],
+  x: "region",
+  y: "revenue",
+  highlight: "APAC",
+  valueLabels: true,
+  title: "Custom accent color",
+  subtitle: "accentColor #d81b60, auto-clamped for contrast",
+  style: { accentColor: "#d81b60" },
+});
+
 console.log("done");

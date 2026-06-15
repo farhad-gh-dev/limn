@@ -1,10 +1,10 @@
-// Okabe-Ito colorblind-safe categorical palette + supporting ramps.
+// Okabe-Ito colorblind-safe categorical palette + per-theme color tokens.
 // Reference: Okabe & Ito, "Color Universal Design" (2008) — the recognized
 // standard for categorical distinguishability across deuter/protan/tritan vision.
 
 /**
  * Categorical palette, ordered so the first few series stay maximally distinct
- * on a white background (low-contrast yellow and harsh black are placed last).
+ * (low-contrast yellow and harsh black are placed last). Works on light and dark.
  */
 export const OKABE_ITO: readonly string[] = [
   "#0072B2", // blue
@@ -17,9 +17,6 @@ export const OKABE_ITO: readonly string[] = [
   "#000000", // black
 ];
 
-/** Single accent used by the "highlight one thing" pattern. */
-export const DEFAULT_ACCENT = "#0072B2"; // Okabe-Ito blue
-
 export interface ThemeColors {
   background: string;
   ink: string; // primary text (titles, value labels)
@@ -29,6 +26,7 @@ export interface ThemeColors {
   axis: string; // axis domain + ticks
   mute: string; // de-emphasized marks in the highlight pattern
   accent: string; // emphasis
+  neutral: string; // strong neutral fill (e.g. waterfall total)
 }
 
 export const LIGHT: ThemeColors = {
@@ -39,14 +37,48 @@ export const LIGHT: ThemeColors = {
   grid: "#ececf0",
   axis: "#c9ced6",
   mute: "#cdd3db",
-  accent: DEFAULT_ACCENT,
+  accent: "#0072B2",
+  neutral: "#3a3f47",
 };
 
-/** Semantic colors for waterfall steps. */
+export const DARK: ThemeColors = {
+  background: "#1a1d21",
+  ink: "#e8eaed",
+  muted: "#9aa3ad",
+  faint: "#6b7480",
+  grid: "#2b2f36",
+  axis: "#3a4048",
+  mute: "#454c55",
+  accent: "#4ea8e6",
+  neutral: "#c8ced6",
+};
+
+export const PRINT: ThemeColors = {
+  background: "#ffffff",
+  ink: "#14171a",
+  muted: "#454f5b",
+  faint: "#727b86",
+  grid: "#e6e6e9",
+  axis: "#aab0b8",
+  mute: "#c6ccd3",
+  accent: "#0a5f9e",
+  neutral: "#23272e",
+};
+
+export type ThemeName = "light" | "dark" | "print";
+
+export const THEMES: Record<ThemeName, ThemeColors> = {
+  light: LIGHT,
+  dark: DARK,
+  print: PRINT,
+};
+
+export const DEFAULT_ACCENT = LIGHT.accent;
+
+/** Waterfall step colors; the total bar uses the theme's `neutral`. */
 export const WATERFALL = {
   increase: "#009E73", // bluish green
   decrease: "#D55E00", // vermillion
-  total: "#3a3f47", // neutral dark
 } as const;
 
 /** Perceptually-uniform sequential ramp for continuous data. */

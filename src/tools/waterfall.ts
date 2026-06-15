@@ -10,7 +10,7 @@ import {
   type DataRow,
 } from "../schemas/common.js";
 import { applyTheme } from "../theme/theme.js";
-import { WATERFALL } from "../theme/palette.js";
+import { WATERFALL, type ThemeColors } from "../theme/palette.js";
 import { renderVegaLite } from "../render/pipeline.js";
 
 const inputShape = {
@@ -43,7 +43,7 @@ interface Bar {
   __i: number;
 }
 
-function buildSpec(args: Record<string, unknown>): Record<string, unknown> {
+function buildSpec(args: Record<string, unknown>, colors: ThemeColors): Record<string, unknown> {
   const data = args.data as DataRow[];
   const label = args.label as string;
   const value = args.value as string;
@@ -99,7 +99,7 @@ function buildSpec(args: Record<string, unknown>): Record<string, unknown> {
     type: "nominal",
     scale: {
       domain: ["Increase", "Decrease", "Total"],
-      range: [WATERFALL.increase, WATERFALL.decrease, WATERFALL.total],
+      range: [WATERFALL.increase, WATERFALL.decrease, colors.neutral],
     },
     legend: { title: null, orient: "top" },
   };
@@ -143,8 +143,8 @@ export const waterfall: ToolDef = {
   inputShape,
   async run(args) {
     const style = resolveStyle(args);
-    const themed = applyTheme(buildSpec(args), style);
-    const { svg, png } = await renderVegaLite(themed, { source: style.source });
+    const themed = applyTheme(buildSpec(args, style.colors), style);
+    const { svg, png } = await renderVegaLite(themed, { source: style.source, sourceColor: style.colors.faint });
     return {
       svg,
       png,

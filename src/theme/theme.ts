@@ -1,7 +1,7 @@
 // The design system, expressed as a Vega-Lite config plus a small set of
 // spec-level transforms (title framing, sizing). This is the "moat": every
 // styling decision lives here so the model never touches a style knob.
-import { LIGHT, OKABE_ITO, SEQUENTIAL, DIVERGING, type ThemeColors } from "./palette.js";
+import { LIGHT, OKABE_ITO, SEQUENTIAL, DIVERGING, type ThemeColors, type ThemeName } from "./palette.js";
 
 export const FONT = "Inter";
 export const VL_SCHEMA = "https://vega.github.io/schema/vega-lite/v6.json";
@@ -23,12 +23,13 @@ export const TYPE = {
 } as const;
 
 export interface ResolvedStyle {
-  theme: "light";
+  theme: ThemeName;
   width: number;
   height: number;
   title?: string;
   subtitle?: string;
   source?: string;
+  colors: ThemeColors;
 }
 
 /** Build the Vega-Lite `config` that encodes the whole look. */
@@ -128,8 +129,8 @@ export function applyTheme(baseSpec: Record<string, unknown>, style: ResolvedSty
   const spec: Record<string, unknown> = { $schema: VL_SCHEMA, ...baseSpec };
   spec.width = style.width;
   spec.height = style.height;
-  spec.background = LIGHT.background;
-  spec.config = deepMerge(vegaLiteConfig(LIGHT), (baseSpec.config as Record<string, unknown>) ?? {});
+  spec.background = style.colors.background;
+  spec.config = deepMerge(vegaLiteConfig(style.colors), (baseSpec.config as Record<string, unknown>) ?? {});
   const title = buildTitle(style);
   if (title) spec.title = title;
   return spec;
@@ -142,8 +143,8 @@ export function applyThemeToUserSpec(
   style: ResolvedStyle
 ): Record<string, unknown> {
   const spec: Record<string, unknown> = { ...userSpec };
-  spec.config = deepMerge((userSpec.config as Record<string, unknown>) ?? {}, vegaLiteConfig(LIGHT));
-  spec.background = LIGHT.background;
+  spec.config = deepMerge((userSpec.config as Record<string, unknown>) ?? {}, vegaLiteConfig(style.colors));
+  spec.background = style.colors.background;
   if (style.width && spec.width == null) spec.width = style.width;
   if (style.height && spec.height == null) spec.height = style.height;
   const title = buildTitle(style);

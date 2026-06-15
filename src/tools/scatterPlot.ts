@@ -11,7 +11,7 @@ import {
   type DataRow,
 } from "../schemas/common.js";
 import { applyTheme } from "../theme/theme.js";
-import { LIGHT } from "../theme/palette.js";
+import type { ThemeColors } from "../theme/palette.js";
 import { renderVegaLite } from "../render/pipeline.js";
 
 const inputShape = {
@@ -25,7 +25,7 @@ const inputShape = {
   ...styleShape,
 };
 
-function buildSpec(args: Record<string, unknown>): Record<string, unknown> {
+function buildSpec(args: Record<string, unknown>, colors: ThemeColors): Record<string, unknown> {
   const data = args.data as DataRow[];
   const x = args.x as string;
   const y = args.y as string;
@@ -82,7 +82,7 @@ function buildSpec(args: Record<string, unknown>): Record<string, unknown> {
       pointLayer,
       {
         transform: [{ regression: y, on: x }],
-        mark: { type: "line", color: LIGHT.faint, strokeWidth: 2, strokeDash: [4, 3] },
+        mark: { type: "line", color: colors.faint, strokeWidth: 2, strokeDash: [4, 3] },
         encoding: { x: { field: x, type: "quantitative" }, y: { field: y, type: "quantitative" } },
       },
     ],
@@ -99,8 +99,8 @@ export const scatterPlot: ToolDef = {
   inputShape,
   async run(args) {
     const style = resolveStyle(args);
-    const themed = applyTheme(buildSpec(args), style);
-    const { svg, png } = await renderVegaLite(themed, { source: style.source });
+    const themed = applyTheme(buildSpec(args, style.colors), style);
+    const { svg, png } = await renderVegaLite(themed, { source: style.source, sourceColor: style.colors.faint });
     return {
       svg,
       png,

@@ -32,7 +32,7 @@ export const renderVegaSpec: ToolDef = {
     assertOfflineSpec(userSpec);
     const style = resolveStyle(args);
     const themed = applyThemeToUserSpec(userSpec, style);
-    const { svg, png } = await renderVegaLite(themed, { source: style.source });
+    const { svg, png } = await renderVegaLite(themed, { source: style.source, sourceColor: style.colors.faint });
     return {
       svg,
       png,

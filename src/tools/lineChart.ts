@@ -11,7 +11,7 @@ import {
   type DataRow,
 } from "../schemas/common.js";
 import { applyTheme } from "../theme/theme.js";
-import { LIGHT } from "../theme/palette.js";
+import type { ThemeColors } from "../theme/palette.js";
 import { renderVegaLite } from "../render/pipeline.js";
 
 type XType = "temporal" | "quantitative" | "nominal";
@@ -53,7 +53,7 @@ function detectType(data: DataRow[], field: string): XType {
   return "nominal";
 }
 
-function buildSpec(args: Record<string, unknown>): Record<string, unknown> {
+function buildSpec(args: Record<string, unknown>, colors: ThemeColors): Record<string, unknown> {
   const data = args.data as DataRow[];
   const x = args.x as string;
   const y = args.y as string;
@@ -104,7 +104,7 @@ function buildSpec(args: Record<string, unknown>): Record<string, unknown> {
     colorEnc = {
       field: "__hl",
       type: "nominal",
-      scale: { domain: ["on", "off"], range: [LIGHT.accent, LIGHT.mute] },
+      scale: { domain: ["on", "off"], range: [colors.accent, colors.mute] },
       legend: null,
     };
   } else if (series) {
@@ -159,8 +159,8 @@ export const lineChart: ToolDef = {
   inputShape,
   async run(args) {
     const style = resolveStyle(args);
-    const themed = applyTheme(buildSpec(args), style);
-    const { svg, png } = await renderVegaLite(themed, { source: style.source });
+    const themed = applyTheme(buildSpec(args, style.colors), style);
+    const { svg, png } = await renderVegaLite(themed, { source: style.source, sourceColor: style.colors.faint });
     return {
       svg,
       png,

@@ -27,6 +27,7 @@ interface VegaView {
 export interface RenderOptions {
   scale?: number; // PNG raster scale (default 2 → crisp on retina/print)
   source?: string; // optional source/footnote line, drawn bottom-left
+  sourceColor?: string; // color for the source line (theme faint)
 }
 
 /** Compile + render a themed Vega-Lite spec to SVG and PNG. */
@@ -52,7 +53,8 @@ export async function renderVegaLite(
   let svg = await view.toSVG();
   view.finalize();
 
-  if (opts.source) svg = addSourceFooter(svg, opts.source);
+  svg = deconflictLabels(svg);
+  if (opts.source) svg = addSourceFooter(svg, opts.source, opts.sourceColor ?? LIGHT.faint);
 
   const png = rasterize(svg, opts.scale ?? 2);
   return { svg, png, vegaLiteSpec: vlSpec, vegaSpec: vgSpec };
@@ -66,6 +68,50 @@ function rasterize(svg: string, scale: number): Buffer {
   return resvg.render().asPng();
 }
 
+/**
+ * De-conflict stacked text labels (line/slope end-labels) that the layout
+ * places at the same x but nearly the same y. We only touch our own
+ * `role-mark` text groups, and only nudge labels that share an x-position —
+ * so bar value labels (distinct x) and axis/title text are never affected.
+ */
+function deconflictLabels(svg: string): string {
+  const MIN_GAP = 13;
+  const X_TOL = 8;
+  return svg.replace(/<g class="mark-text role-mark[^"]*"[^>]*>([\s\S]*?)<\/g>/g, (whole, inner: string) => {
+    const texts: Array<{ raw: string; x: number; y: number }> = [];
+    const re = /<text\b[^>]*?transform="translate\(([-\d.]+),([-\d.]+)\)"[^>]*?>[\s\S]*?<\/text>/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(inner)) !== null) {
+      texts.push({ raw: m[0], x: parseFloat(m[1] ?? "0"), y: parseFloat(m[2] ?? "0") });
+    }
+    if (texts.length < 2) return whole;
+
+    // Bucket labels by shared x-anchor.
+    const buckets: Array<{ x: number; items: typeof texts }> = [];
+    for (const t of texts) {
+      const b = buckets.find((bk) => Math.abs(bk.x - t.x) <= X_TOL);
+      if (b) b.items.push(t);
+      else buckets.push({ x: t.x, items: [t] });
+    }
+
+    let nextInner = inner;
+    for (const b of buckets) {
+      if (b.items.length < 2) continue;
+      b.items.sort((p, q) => p.y - q.y);
+      let prevY = -Infinity;
+      for (const t of b.items) {
+        const ny = t.y - prevY < MIN_GAP ? prevY + MIN_GAP : t.y;
+        prevY = ny;
+        if (ny !== t.y) {
+          const updated = t.raw.replace(/translate\(([-\d.]+),[-\d.]+\)/, `translate($1,${ny})`);
+          nextInner = nextInner.replace(t.raw, updated);
+        }
+      }
+    }
+    return nextInner === inner ? whole : whole.replace(inner, nextInner);
+  });
+}
+
 function escapeXml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -74,7 +120,7 @@ function escapeXml(s: string): string {
 }
 
 /** Append a muted source line below the chart, growing the SVG canvas to fit. */
-function addSourceFooter(svg: string, source: string): string {
+function addSourceFooter(svg: string, source: string, color: string): string {
   const tagMatch = svg.match(/<svg([^>]*)>/);
   if (!tagMatch || tagMatch[1] === undefined) return svg;
   const attrs = tagMatch[1];
@@ -95,7 +141,7 @@ function addSourceFooter(svg: string, source: string): string {
 
   const footer =
     `<text x="18" y="${h + 16}" font-family="${FONT}, sans-serif" ` +
-    `font-size="11" fill="${LIGHT.faint}">${escapeXml(source)}</text>`;
+    `font-size="11" fill="${color}">${escapeXml(source)}</text>`;
 
   return svg.replace(/<svg[^>]*>/, `<svg${newAttrs}>`).replace("</svg>", `${footer}</svg>`);
 }

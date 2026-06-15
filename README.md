@@ -4,11 +4,11 @@
 
 Limn is a [Model Context Protocol](https://modelcontextprotocol.io) server. Ask your LLM (Claude Desktop, Cursor, VS Code, any MCP client) to chart some data and get back something you'd put in a deck — a **PNG**, an editable **SVG**, and the **resolved spec** for one-change refinement. You give it data and a couple of semantic encodings; it owns the typography, color, spacing, labeling, and formatting.
 
-- 🎨 **Design-first.** A small, opinionated tool surface and a rigorous design system (Okabe-Ito colorblind-safe palette, Inter typography, direct labeling, editorial framing). Few knobs, hard to make ugly.
+- 🎨 **Design-first.** A small, opinionated tool surface and a rigorous design system (Okabe-Ito colorblind-safe palette, Inter typography, direct labeling, editorial framing) in light, dark, and print themes. Few knobs, hard to make ugly.
 - 🔒 **Fully local, no account.** Runs on your machine over stdio. **No network calls, no API key, no data leaving the box** — verifiable offline. The Vega data loader is disabled so a spec can't fetch a URL or read a file.
 - ⚡ **No browser.** Renders Vega-Lite → SVG → PNG with a Rust rasterizer (`@resvg/resvg-js`). No Puppeteer/Chromium. Fast cold start, deterministic output.
 
-> Status: **v0.2** — eight chart tools (`bar_chart`, `line_chart`, `scatter_plot`, `distribution`, `part_to_whole`, `slope_chart`, `dumbbell_plot`, `waterfall`) plus a themed Vega-Lite escape hatch. See [Roadmap](#roadmap).
+> Status: **v0.2** — eight chart tools (`bar_chart`, `line_chart`, `scatter_plot`, `distribution`, `part_to_whole`, `slope_chart`, `dumbbell_plot`, `waterfall`) plus a themed Vega-Lite escape hatch; light/dark/print themes and a custom `accentColor`. See [Roadmap](#roadmap).
 
 ## Before / after
 
@@ -89,7 +89,7 @@ Point your client at the local build with `"command": "node", "args": ["/abs/pat
 
 ## Tools
 
-Each tool takes `data` (an array of rows) plus a few field names, and accepts optional `title` / `subtitle` / `source` and a closed `style` (`theme`, `width`, `height`). Every tool returns **PNG + SVG + resolved spec**.
+Each tool takes `data` (an array of rows) plus a few field names, and accepts optional `title` / `subtitle` / `source` and a closed `style` (`theme` — light/dark/print, `accentColor`, `width`, `height`). Every tool returns **PNG + SVG + resolved spec**.
 
 | Tool | What it's for | Key inputs |
 |---|---|---|
@@ -104,6 +104,14 @@ Each tool takes `data` (an array of rows) plus a few field names, and accepts op
 | `render_vega_spec` | Any chart outside the hero set, themed | `spec` (inline-data Vega-Lite JSON only) |
 
 **Refinement loop.** Each call returns a *resolved spec* — pass it back to the same tool with one change (`"now highlight Q4"`, `"add a subtitle"`) instead of regenerating from scratch.
+
+## Themes & accent
+
+Three themes — `light` (default), `dark`, and `print` — plus an optional `accentColor` (any hex, accepted as-is then auto-clamped to an accessible contrast against the background). Set them in `style`, e.g. `{ "theme": "dark" }` or `{ "accentColor": "#d81b60" }`.
+
+| Dark theme | Custom accent (auto-clamped) |
+|---|---|
+| ![Dark theme line chart](examples/theme_dark_line.png) | ![Custom accent bar chart](examples/theme_accent_bar.png) |
 
 ## Privacy
 
@@ -121,15 +129,13 @@ The quality is in defaults the model never touches:
 
 ## Limitations (v0.2)
 
-- **One theme** (`light`). Dark/print are on the roadmap.
-- **No `accentColor` yet** — the accent is Okabe-Ito blue. (Accessible-clamped custom accents are planned.)
-- **Label de-confliction is basic.** When two series have nearly identical values, slope/line end-labels can touch. Bespoke label placement is a roadmap item.
+- **Label de-confliction is heuristic.** Near-equal slope/line labels are nudged apart vertically so they don't overlap, but very dense label sets don't get leader lines yet.
 - **SVG references the `Inter` family.** The PNG is fully self-contained (glyphs are rasterized); for pixel-perfect SVG outside an environment that has Inter, use the PNG or install Inter.
 
 ## Roadmap
 
-- **v0.2 (this release)** — added `scatter_plot`, `distribution`, `part_to_whole`, and the `dumbbell_plot` signature chart.
-- **Next** — `dark`/`print` themes, accessible `accentColor`, and bespoke renderers with smarter label placement (de-conflict slope/line labels on near-equal values).
+- **v0.2 (this release)** — `scatter_plot`, `distribution`, `part_to_whole`, `dumbbell_plot`; `dark`/`print` themes; accessible `accentColor`; heuristic label de-confliction; visual-regression suite.
+- **Next** — bespoke renderers with leader-line label placement; more chart types as demand proves them.
 - **Later** — a `suggest_chart` advisor; optional self-hosted HTTP transport.
 
 ## Tech

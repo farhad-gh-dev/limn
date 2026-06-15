@@ -87,7 +87,7 @@ export const distribution: ToolDef = {
   async run(args) {
     const style = resolveStyle(args);
     const themed = applyTheme(buildSpec(args), style);
-    const { svg, png } = await renderVegaLite(themed, { source: style.source });
+    const { svg, png } = await renderVegaLite(themed, { source: style.source, sourceColor: style.colors.faint });
     return {
       svg,
       png,

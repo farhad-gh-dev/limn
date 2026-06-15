@@ -2,6 +2,8 @@
 // records + semantic field names, minimal required fields, a small closed style.
 import { z } from "zod";
 import { DEFAULT_HEIGHT, DEFAULT_WIDTH, type ResolvedStyle } from "../theme/theme.js";
+import { THEMES, type ThemeName } from "../theme/palette.js";
+import { isHexColor, clampAccentToContrast } from "../theme/color.js";
 
 export type DataRow = Record<string, string | number | boolean | null>;
 
@@ -28,7 +30,13 @@ export const editorialShape = {
 
 export const StyleSchema = z
   .object({
-    theme: z.enum(["light"]).default("light").describe("Visual theme. v0.1 ships 'light'."),
+    theme: z.enum(["light", "dark", "print"]).default("light").describe("Visual theme: light (default), dark, or print."),
+    accentColor: z
+      .string()
+      .optional()
+      .describe(
+        "Accent color as a hex string (e.g. #0a7cff). Accepted as-is, then auto-clamped to an accessible contrast against the background; drives highlight/emphasis."
+      ),
     width: z.number().int().min(160).max(2000).optional().describe("Plot width in px. Default 600."),
     height: z.number().int().min(120).max(2000).optional().describe("Plot height in px. Default 380."),
   })
@@ -41,14 +49,20 @@ export const styleShape = {
 };
 
 export function resolveStyle(args: Record<string, unknown>): ResolvedStyle {
-  const s = (args.style ?? {}) as { theme?: "light"; width?: number; height?: number };
+  const s = (args.style ?? {}) as { theme?: ThemeName; accentColor?: string; width?: number; height?: number };
+  const theme: ThemeName = s.theme ?? "light";
+  const base = THEMES[theme] ?? THEMES.light;
+  const colors = isHexColor(s.accentColor)
+    ? { ...base, accent: clampAccentToContrast(s.accentColor, base.background) }
+    : base;
   return {
-    theme: s.theme ?? "light",
+    theme,
     width: s.width ?? DEFAULT_WIDTH,
     height: s.height ?? DEFAULT_HEIGHT,
     title: args.title as string | undefined,
     subtitle: args.subtitle as string | undefined,
     source: args.source as string | undefined,
+    colors,
   };
 }
 

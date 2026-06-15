@@ -9,7 +9,7 @@ import {
   type DataRow,
 } from "../schemas/common.js";
 import { applyTheme } from "../theme/theme.js";
-import { LIGHT, OKABE_ITO } from "../theme/palette.js";
+import { OKABE_ITO, type ThemeColors } from "../theme/palette.js";
 import { renderVegaLite } from "../render/pipeline.js";
 
 const inputShape = {
@@ -73,7 +73,7 @@ function buildSlices(data: DataRow[], category: string, value: string, maxSlices
   });
 }
 
-function buildSpec(args: Record<string, unknown>): Record<string, unknown> {
+function buildSpec(args: Record<string, unknown>, colors: ThemeColors): Record<string, unknown> {
   const data = args.data as DataRow[];
   const category = args.category as string;
   const value = args.value as string;
@@ -92,14 +92,14 @@ function buildSpec(args: Record<string, unknown>): Record<string, unknown> {
       data: { values: slices },
       layer: [
         {
-          mark: { type: "bar", cornerRadiusEnd: 2, color: LIGHT.accent },
+          mark: { type: "bar", cornerRadiusEnd: 2, color: colors.accent },
           encoding: {
             y: { field: "category", type: "nominal", sort: { field: "__i" }, title: null, axis: { grid: false } },
             x: { field: "pct", type: "quantitative", title: "Share (%)", axis: { grid: true, domain: false, ticks: false } },
           },
         },
         {
-          mark: { type: "text", align: "left", dx: 5, baseline: "middle", fontWeight: 500, color: LIGHT.ink },
+          mark: { type: "text", align: "left", dx: 5, baseline: "middle", fontWeight: 500, color: colors.ink },
           encoding: {
             y: { field: "category", type: "nominal", sort: { field: "__i" } },
             x: { field: "pct", type: "quantitative" },
@@ -138,8 +138,8 @@ export const partToWhole: ToolDef = {
   inputShape,
   async run(args) {
     const style = resolveStyle(args);
-    const themed = applyTheme(buildSpec(args), style);
-    const { svg, png } = await renderVegaLite(themed, { source: style.source });
+    const themed = applyTheme(buildSpec(args, style.colors), style);
+    const { svg, png } = await renderVegaLite(themed, { source: style.source, sourceColor: style.colors.faint });
     return {
       svg,
       png,
