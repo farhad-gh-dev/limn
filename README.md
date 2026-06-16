@@ -8,7 +8,7 @@ Limn is a [Model Context Protocol](https://modelcontextprotocol.io) server. Ask 
 - 🔒 **Fully local, no account.** Runs on your machine over stdio. **No network calls, no API key, no data leaving the box** — verifiable offline. The Vega data loader is disabled so a spec can't fetch a URL or read a file.
 - ⚡ **No browser.** Renders Vega-Lite → SVG → PNG with a Rust rasterizer (`@resvg/resvg-js`). No Puppeteer/Chromium. Fast cold start, deterministic output.
 
-> Status: **v0.2** — eight chart tools (`bar_chart`, `line_chart`, `scatter_plot`, `distribution`, `part_to_whole`, `slope_chart`, `dumbbell_plot`, `waterfall`) plus a themed Vega-Lite escape hatch; light/dark/print themes and a custom `accentColor`. See [Roadmap](#roadmap).
+> Status: **v0.2** — eight chart tools (`bar_chart`, `line_chart`, `scatter_plot`, `distribution`, `part_to_whole`, `slope_chart`, `dumbbell_plot`, `waterfall`) plus a themed Vega-Lite escape hatch and a `suggest_chart` advisor; light/dark/print themes and a custom `accentColor`. See [Roadmap](#roadmap).
 
 ## Before / after
 
@@ -102,8 +102,11 @@ Each tool takes `data` (an array of rows) plus a few field names, and accepts op
 | `dumbbell_plot` | Two values per category; the gap is the message | `category`, `group` (two), `value`, `sort?`, `valueLabels?` |
 | `waterfall` | Bridge a start to an end through signed steps | `label`, `value`, `showTotal?`, `totalLabel?` |
 | `render_vega_spec` | Any chart outside the hero set, themed | `spec` (inline-data Vega-Lite JSON only) |
+| `suggest_chart` | Recommend which chart tool to use (advisor) | `data`, `question?` → ranked suggestions |
 
 **Refinement loop.** Each call returns a *resolved spec* — pass it back to the same tool with one change (`"now highlight Q4"`, `"add a subtitle"`) instead of regenerating from scratch.
+
+**Not sure which chart?** Call `suggest_chart` with your data and question for a ranked recommendation with field mappings — deterministic and local, no model call.
 
 ## Themes & accent
 
@@ -134,9 +137,9 @@ The quality is in defaults the model never touches:
 
 ## Roadmap
 
-- **v0.2 (this release)** — `scatter_plot`, `distribution`, `part_to_whole`, `dumbbell_plot`; `dark`/`print` themes; accessible `accentColor`; heuristic label de-confliction; visual-regression suite.
-- **Next** — bespoke renderers with leader-line label placement; more chart types as demand proves them.
-- **Later** — a `suggest_chart` advisor; optional self-hosted HTTP transport.
+- **v0.3 (this release)** — `suggest_chart` advisor: a deterministic, local recommender that picks the right tool + field mappings from your data and question.
+- **v0.2** — `scatter_plot`, `distribution`, `part_to_whole`, `dumbbell_plot`; `dark`/`print` themes; accessible `accentColor`; heuristic label de-confliction; visual-regression suite.
+- **Next** — bespoke renderers with leader-line label placement; optional self-hosted HTTP transport; more chart types as demand proves them.
 
 ## Tech
 

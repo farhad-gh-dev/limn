@@ -9,6 +9,7 @@ import { slopeChart } from "./tools/slopeChart.js";
 import { dumbbellPlot } from "./tools/dumbbellPlot.js";
 import { waterfall } from "./tools/waterfall.js";
 import { renderVegaSpec } from "./tools/renderVegaSpec.js";
+import { SUGGEST_TOOL, recommend } from "./tools/suggestChart.js";
 
 export const TOOLS: ToolDef[] = [
   barChart,
@@ -31,7 +32,7 @@ const ANNOTATIONS = {
 } as const;
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "limn", version: "0.1.0" });
+  const server = new McpServer({ name: "limn", version: "0.3.0" });
 
   for (const tool of TOOLS) {
     server.registerTool(
@@ -67,6 +68,37 @@ export function createServer(): McpServer {
       }
     );
   }
+
+  // The advisor returns text guidance (not a chart), so it is registered apart
+  // from the chart-tool loop.
+  server.registerTool(
+    SUGGEST_TOOL.name,
+    {
+      title: SUGGEST_TOOL.title,
+      description: SUGGEST_TOOL.description,
+      inputSchema: SUGGEST_TOOL.inputShape,
+      annotations: { title: SUGGEST_TOOL.title, ...ANNOTATIONS },
+    },
+    async (args: Record<string, unknown>) => {
+      try {
+        const rec = recommend(args);
+        const lines = rec.suggestions.map(
+          (s, i) => `${i + 1}. ${s.tool} (${s.confidence}) — ${s.rationale}\n   call: ${s.tool} ${JSON.stringify(s.args)}`
+        );
+        const profileStr = rec.profile
+          .map((f) => `${f.name}: ${f.type}${f.type === "nominal" ? ` (${f.distinct} distinct)` : ""}`)
+          .join(", ");
+        const text =
+          `${rec.summary}\n\n` +
+          (lines.length ? `Ranked suggestions:\n${lines.join("\n")}\n\n` : "") +
+          `Data profile: ${profileStr}`;
+        return { content: [{ type: "text" as const, text }] };
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        return { isError: true, content: [{ type: "text" as const, text: `Limn suggest_chart error: ${msg}` }] };
+      }
+    }
+  );
 
   return server;
 }

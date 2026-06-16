@@ -21,6 +21,7 @@ test("server lists the 5 tools and renders a bar chart via MCP", async () => {
     "render_vega_spec",
     "scatter_plot",
     "slope_chart",
+    "suggest_chart",
     "waterfall",
   ]);
 

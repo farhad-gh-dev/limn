@@ -1,6 +1,6 @@
 {
   "name": "limn-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A local, account-free MCP server that turns data into clean, presentation-ready charts — design judgment baked into the defaults.",
   "type": "module",
   "bin": {
