@@ -10,6 +10,7 @@ import { dumbbellPlot } from "./tools/dumbbellPlot.js";
 import { waterfall } from "./tools/waterfall.js";
 import { renderVegaSpec } from "./tools/renderVegaSpec.js";
 import { SUGGEST_TOOL, recommend } from "./tools/suggestChart.js";
+import { VERSION } from "./version.js";
 
 export const TOOLS: ToolDef[] = [
   barChart,
@@ -32,7 +33,7 @@ const ANNOTATIONS = {
 } as const;
 
 export function createServer(): McpServer {
-  const server = new McpServer({ name: "limn", version: "0.3.0" });
+  const server = new McpServer({ name: "limn", version: VERSION });
 
   for (const tool of TOOLS) {
     server.registerTool(

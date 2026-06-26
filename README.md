@@ -8,7 +8,7 @@ Limn is a [Model Context Protocol](https://modelcontextprotocol.io) server. Ask 
 - 🔒 **Fully local, no account.** Runs on your machine over stdio. **No network calls, no API key, no data leaving the box** — verifiable offline. The Vega data loader is disabled so a spec can't fetch a URL or read a file.
 - ⚡ **No browser.** Renders Vega-Lite → SVG → PNG with a Rust rasterizer (`@resvg/resvg-js`). No Puppeteer/Chromium. Fast cold start, deterministic output.
 
-> Status: **v0.2** — eight chart tools (`bar_chart`, `line_chart`, `scatter_plot`, `distribution`, `part_to_whole`, `slope_chart`, `dumbbell_plot`, `waterfall`) plus a themed Vega-Lite escape hatch and a `suggest_chart` advisor; light/dark/print themes and a custom `accentColor`. See [Roadmap](#roadmap).
+> Status: **v0.3** — eight chart tools (`bar_chart`, `line_chart`, `scatter_plot`, `distribution`, `part_to_whole`, `slope_chart`, `dumbbell_plot`, `waterfall`) plus a themed Vega-Lite escape hatch and a `suggest_chart` advisor; light/dark/print themes and a custom `accentColor`. See [Roadmap](#roadmap).
 
 ## Before / after
 

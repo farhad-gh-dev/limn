@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { createServer } from "./server.js";
+import { VERSION } from "./version.js";
 
 async function main(): Promise<void> {
   const server = createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
   // stdout is reserved for the JSON-RPC stream; status goes to stderr.
-  process.stderr.write("limn-mcp v0.1.0 — running on stdio (local, offline)\n");
+  process.stderr.write(`limn-mcp v${VERSION} — running on stdio (local, offline)\n`);
 }
 
 main().catch((err: unknown) => {
