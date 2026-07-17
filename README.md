@@ -130,7 +130,7 @@ The quality is in defaults the model never touches:
 - **Restraint** — thin gridlines, no chart borders, generous margins, bundled Inter with a fixed type scale.
 - **Opinionated correctness** — bars start at zero and sort by value; numbers get SI/compact formatting.
 
-## Limitations (v0.2)
+## Limitations (v0.3)
 
 - **Label de-confliction is heuristic.** Near-equal slope/line labels are nudged apart vertically so they don't overlap, but very dense label sets don't get leader lines yet.
 - **SVG references the `Inter` family.** The PNG is fully self-contained (glyphs are rasterized); for pixel-perfect SVG outside an environment that has Inter, use the PNG or install Inter.
