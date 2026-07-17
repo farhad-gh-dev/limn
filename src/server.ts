@@ -54,7 +54,7 @@ export function createServer(): McpServer {
                 type: "text" as const,
                 text:
                   `${tool.title} rendered (PNG above). Resolved spec — pass back to \`${tool.name}\` ` +
-                  `with one change to refine:\n${JSON.stringify(resolvedSpec)}`,
+                  `with one change to refine:\n${JSON.stringify(resolvedSpec, null, 2)}`,
               },
               { type: "text" as const, text: `Editable SVG:\n${svg}` },
             ],
